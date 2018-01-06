@@ -5,3 +5,4 @@ authors = ["Wan Shen Lim <wanshenl@andrew.cmu.edu>"]
 
 [dependencies]
 num = "0.1.27"
+image = "0.13.0"

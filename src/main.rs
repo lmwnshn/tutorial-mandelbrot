@@ -1,5 +1,12 @@
+extern crate image;
 extern crate num;
+
+use image::ColorType;
+use image::png::PNGEncoder;
 use num::Complex;
+use std::io::Result;
+use std::io::Write;
+use std::fs::File;
 use std::str::FromStr;
 
 /// escape_time(c, l) : check if `c` in Mandelbrot with up to `l` iterations
@@ -73,8 +80,45 @@ fn render(pixels: &mut [u8],
     }
 }
 
+fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize))
+    -> Result<()>
+{
+    let output = File::create(filename)?;
+
+    let encoder = PNGEncoder::new(output);
+    encoder.encode(&pixels,
+                   bounds.0 as u32, bounds.1 as u32,
+                   ColorType::Gray(8))?;
+    Ok(())
+}
+
 fn main() {
-    println!("Hello, world!");
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() != 5 {
+        writeln!(std::io::stderr(),
+                 "Usage: mandelbrot FILE PIXELS TOP_LEFT BOT_RIGHT")
+            .unwrap();
+        writeln!(std::io::stderr(),
+                "e.g. {} mandel.png 1000x750 -1.20,0.35 -1,0.20",
+                args[0])
+            .unwrap();
+        std::process::exit(1);
+    }
+
+    let bounds = parse_pair(&args[2], 'x')
+        .expect("error parsing PIXELS");
+    let top_left = parse_complex(&args[3])
+        .expect("error parsing TOP_LEFT");
+    let bot_right = parse_complex(&args[4])
+        .expect("error parsing BOT_RIGHT");
+
+    let mut pixels = vec![0; bounds.0 * bounds.1];
+
+    render(&mut pixels, bounds, top_left, bot_right);
+
+    write_image(&args[1], &pixels, bounds)
+        .expect("error writing PNG file");
 }
 
 #[test]
