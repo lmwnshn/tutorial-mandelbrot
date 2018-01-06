@@ -1,0 +1,6 @@
+[package]
+name = "tutorial-mandelbrot"
+version = "0.1.0"
+authors = ["Wan Shen Lim <wanshenl@andrew.cmu.edu>"]
+
+[dependencies]
